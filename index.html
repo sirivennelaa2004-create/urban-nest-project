@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UrbanNest | Secure Community Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src='https://meet.jit.si/external_api.js'></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .emerald-gradient {
+            background: linear-gradient(135deg, #065F46 0%, #1E3A8A 100%);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.1;
+        }
+
+        .tab-active {
+            color: #FF7F50;
+            position: relative;
+        }
+
+        .tab-active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #FF7F50;
+            border-radius: 2px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 900: '#064E3B', 800: '#065F46' },
+                        deepblue: '#1E3A8A',
+                        coral: '#FF7F50',
+                        emergency: '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    <!-- LANDING PAGE VIEW -->
+    <div id="landing-view" class="min-h-screen emerald-gradient flex flex-col p-6 sm:p-12">
+        <nav class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-2 text-white">
+                <i data-lucide="home" class="w-8 h-8 text-coral"></i>
+                <span class="text-2xl font-bold tracking-tight">UrbanNest</span>
+            </div>
+            <button onclick="showAuth('signin')"
+                class="glass text-white px-6 py-2 rounded-full font-semibold hover:bg-white/20 transition-all">Sign
+                In</button>
+        </nav>
+
+        <div class="flex-grow flex flex-col justify-center max-w-4xl mx-auto text-center text-white mb-12 animate-fade">
+            <h1 class="hero-title font-bold mb-6">Secure AUTHORIZED Community Management</h1>
+            <p class="text-xl text-white/80 mb-12 max-w-2xl mx-auto">Connecting neighborhood leaders and residents. A
+                modern platform for colony transparency and security.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div onclick="showCreateChoice()"
+                    class="glass p-8 rounded-3xl cursor-pointer hover:scale-105 transition-transform text-left group">
+                    <div
+                        class="bg-coral w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform">
+                        <i data-lucide="shield-plus" class="text-white w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Create Community</h3>
+                    <p class="text-white/70 text-sm">Organize a new or existing colony.</p>
+                </div>
+
+                <div onclick="showAuth('signup', 'Resident')"
+                    class="glass p-8 rounded-3xl cursor-pointer hover:scale-105 transition-transform text-left group">
+                    <div
+                        class="bg-blue-500 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform">
+                        <i data-lucide="users" class="text-white w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Join Community</h3>
+                    <p class="text-white/70 text-sm">Find and request access to your colony.</p>
+                </div>
+
+                <div onclick="showColonyList()"
+                    class="glass p-8 rounded-3xl cursor-pointer hover:scale-105 transition-transform text-left group">
+                    <div
+                        class="bg-emerald-500 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform">
+                        <i data-lucide="layout-grid" class="text-white w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Colony List</h3>
+                    <p class="text-white/70 text-sm">View all registered communities.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-white/40 text-sm">
+            Powered by UrbanNest Security | © 2026
+        </div>
+    </div>
+
+    <!-- COLONY LIST MODAL -->
+    <div id="colony-list-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeColonyList()"></div>
+        <div
+            class="bg-white w-full max-w-2xl rounded-[3rem] p-10 relative overflow-hidden animate-fade max-h-[80vh] flex flex-col">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-deepblue uppercase tracking-tight">Active Communities</h2>
+                <p class="text-gray-500 font-medium text-sm mt-1">These colonies are already registered on UrbanNest.
+                </p>
+            </div>
+            <div id="colony-grid"
+                class="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-grow"></div>
+            <button onclick="closeColonyList()" class="absolute top-8 right-8 text-gray-300 hover:text-gray-600"><i
+                    data-lucide="x" class="w-8 h-8"></i></button>
+        </div>
+    </div>
+
+    <!-- CREATE CHOICE MODAL -->
+    <div id="choice-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeChoices()"></div>
+        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 relative animate-fade">
+            <h2 class="text-2xl font-bold text-deepblue mb-6">Setup Community</h2>
+            <div class="space-y-4">
+                <button onclick="showAuth('signup', 'President', 'New')"
+                    class="w-full text-left p-6 bg-emerald-50 border border-emerald-100 rounded-3xl hover:bg-emerald-100 transition-all group">
+                    <p class="font-bold text-emerald-800 flex items-center gap-2"><i data-lucide="plus-circle"
+                            class="w-5 h-5"></i> Create New Community</p>
+                    <p class="text-xs text-emerald-600 mt-1">Start a fresh colony grouping from scratch.</p>
+                </button>
+                <button onclick="showAuth('signup', 'President', 'Existing')"
+                    class="w-full text-left p-6 bg-blue-50 border border-blue-100 rounded-3xl hover:bg-blue-100 transition-all group">
+                    <p class="font-bold text-blue-800 flex items-center gap-2"><i data-lucide="building-2"
+                            class="w-5 h-5"></i> Manage Existing</p>
+                    <p class="text-xs text-blue-600 mt-1">Take charge of a colony already on the system.</p>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PENDING APPROVAL VIEW -->
+    <div id="pending-view"
+        class="hidden min-h-screen emerald-gradient flex flex-col items-center justify-center p-6 text-center text-white">
+        <div class="glass p-12 rounded-[3.5rem] max-w-md w-full animate-fade">
+            <div class="bg-coral w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"><i
+                    data-lucide="clock" class="text-white w-10 h-10"></i></div>
+            <h2 class="text-3xl font-bold mb-4">Request Sent!</h2>
+            <p class="text-white/70 mb-8 leading-relaxed">Your request to join <span id="pending-colony-name"
+                    class="font-bold text-white">...</span> has been logged. The President will review your details
+                soon.</p>
+            <div class="space-y-4">
+                <div class="bg-white/10 p-4 rounded-2xl text-sm border border-white/10">
+                    <p class="text-white/50 uppercase font-bold text-[10px] tracking-widest mb-1">Status</p>
+                    <p class="font-bold">Awaiting Admin Approval</p>
+                </div>
+                <button onclick="location.reload()"
+                    class="bg-white text-emerald-800 w-full py-4 rounded-2xl font-bold hover:bg-gray-100 transition-all">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
+        <header class="bg-emerald-800 text-white p-4 shadow-lg flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-6 h-6 cursor-pointer" onclick="location.reload()"></i>
+                <h2 class="text-xl font-bold" id="dash-colony-title">UrbanNest</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="user-role-badge"
+                    class="bg-white/20 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">Role</div>
+                <div id="user-avatar"
+                    class="bg-coral rounded-full w-10 h-10 flex items-center justify-center font-bold">US</div>
+            </div>
+        </header>
+        <main class="flex-grow bg-gray-100 p-4 pb-24">
+            <div id="tab-content" class="max-w-4xl mx-auto">
+                <div id="tab-home" class="space-y-6">
+                    <div id="approval-list-container" class="hidden animate-fade">
+                        <h4 class="font-bold text-gray-700 mb-4 flex items-center gap-2"><i data-lucide="user-check"
+                                class="w-5 h-5 text-emerald-800"></i> Member Approval Queue</h4>
+                        <div id="pending-list" class="bg-white rounded-3xl p-4 shadow-sm border border-gray-200"></div>
+                    </div>
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-200">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-gray-800">Complaints</h3><button onclick="addComplaint()"
+                                class="bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold">+ New</button>
+                        </div>
+                        <div id="complaints-list" class="space-y-4">
+                            <p class="text-center text-gray-400 text-xs py-4">No active issues.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- ... other tabs ... -->
+                <div id="tab-posts" class="hidden space-y-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-deepblue">Community Feed</h2><button onclick="addPost()"
+                            class="bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold">+ Post</button>
+                    </div>
+                    <div id="posts-list"></div>
+                </div>
+                <div id="tab-emergency" class="hidden space-y-6">
+                    <div class="bg-red-50 border-2 border-red-500 rounded-[3rem] p-8 text-center" id="emergency-box">
+                        <div class="bg-red-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"><i
+                                data-lucide="alert-triangle" class="text-white w-10 h-10"></i></div>
+                        <h2 class="text-2xl font-bold text-red-600 mb-2" id="emergency-status">Security Hub</h2>
+                        <div class="president-only mt-8 hidden"><button onclick="broadcastEmergency()"
+                                class="bg-red-600 text-white w-full py-5 rounded-3xl font-bold shadow-xl">Broadcast
+                                Alert</button></div>
+                        <div class="mt-4 text-red-800 text-sm" id="emergency-msg">System Active.</div>
+                    </div>
+                </div>
+                <div id="tab-meetings" class="hidden space-y-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-deepblue">Live Meetings</h2><button onclick="createMeeting()"
+                            class="president-only hidden bg-emerald-800 text-white px-4 py-2 rounded-xl text-sm font-bold">Start
+                            New</button>
+                    </div>
+                    <div id="meetings-list"></div>
+                </div>
+                <div id="tab-help" class="hidden space-y-6 animate-fade">
+                    <h2 class="text-2xl font-bold text-deepblue">UrbanNest Help</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-50"><i data-lucide="shield"
+                                class="text-emerald-800 mb-4 h-6 w-6"></i>
+                            <h4 class="font-bold mb-1">President Access</h4>
+                            <p class="text-xs text-gray-500">Only creators can approve residents.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-coral/20"><i
+                                data-lucide="message-square" class="text-coral mb-4 h-6 w-6"></i>
+                            <h4 class="font-bold mb-1">Resident Role</h4>
+                            <p class="text-xs text-gray-500">Residents can file complaints.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <nav
+            class="bg-white border-t border-gray-200 fixed bottom-0 w-full px-4 py-2 flex justify-around items-center z-50">
+            <button onclick="switchTab('home')" id="btn-home"
+                class="flex flex-col items-center gap-1 text-emerald-800 tab-active"><i data-lucide="home"
+                    class="w-6 h-6"></i><span class="text-[10px] font-bold">Home</span></button>
+            <button onclick="switchTab('posts')" id="btn-posts"
+                class="flex flex-col items-center gap-1 text-gray-400"><i data-lucide="rss" class="w-6 h-6"></i><span
+                    class="text-[10px] font-bold">Posts</span></button>
+            <button onclick="switchTab('emergency')" id="btn-emergency"
+                class="flex flex-col items-center gap-1 text-gray-400"><i data-lucide="alert-circle"
+                    class="w-6 h-6"></i><span class="text-[10px] font-bold">Safety</span></button>
+            <button onclick="switchTab('meetings')" id="btn-meetings"
+                class="flex flex-col items-center gap-1 text-gray-400"><i data-lucide="video" class="w-6 h-6"></i><span
+                    class="text-[10px] font-bold">Meet</span></button>
+            <button onclick="switchTab('help')" id="btn-help" class="flex flex-col items-center gap-1 text-gray-400"><i
+                    data-lucide="help-circle" class="w-6 h-6"></i><span
+                    class="text-[10px] font-bold">Help</span></button>
+        </nav>
+    </div>
+
+    <!-- MEETING OVERLAY -->
+    <div id="meeting-overlay" class="hidden fixed inset-0 z-[200] bg-black flex flex-col">
+        <header class="bg-emerald-900 text-white p-4 flex justify-between items-center">
+            <h2 id="meeting-room-title" class="text-xl font-bold">Community Meeting</h2>
+            <button onclick="leaveMeeting()" class="bg-red-600 px-6 py-2 rounded-full font-bold">Leave</button>
+        </header>
+        <div id="jitsi-container" class="flex-grow"></div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAuth()"></div>
+        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 relative overflow-hidden animate-fade">
+            <h2 id="auth-title" class="text-3xl font-bold text-deepblue uppercase tracking-tight mb-8">Setup</h2>
+            <div class="space-y-4">
+                <div class="space-y-1" id="role-container">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">I am a</label>
+                    <select id="auth-role"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-800 outline-none">
+                        <option value="Resident">Resident</option>
+                        <option value="President">President</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Name</label>
+                    <input type="text" id="auth-name" placeholder="John Doe"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-800 outline-none">
+                </div>
+                <div class="space-y-1" id="phone-container">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Phone
+                        Number</label>
+                    <input type="tel" id="auth-phone" placeholder="+91 98765 43210"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-800 outline-none">
+                </div>
+                <div class="space-y-1" id="colony-container">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Colony</label>
+                    <select id="colony-select"
+                        class="hidden w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-800 outline-none"></select>
+                    <input type="text" id="colony-input" placeholder="e.g. Green Valley"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-800 outline-none">
+                </div>
+                <div class="space-y-1" id="password-container">
+                    <label id="pass-label"
+                        class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Security Code</label>
+                    <input id="auth-pass-input" type="password" placeholder="••••"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-emerald-800 outline-none">
+                </div>
+                <button onclick="handleAuthAction()"
+                    class="bg-emerald-800 text-white w-full py-5 rounded-2xl font-bold text-lg shadow-xl hover:bg-emerald-900 active:scale-95 transition-all mt-6">Continue</button>
+            </div>
+            <button onclick="closeAuth()" class="absolute top-6 right-6 text-gray-300 hover:text-gray-600"><i
+                    data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let colonies = JSON.parse(localStorage.getItem('un_colonies')) || [
+            { name: "Green Valley", requests: [{ name: "Anita Rao", phone: "9988776655" }] },
+            { name: "Royal Residency", requests: [] }
+        ];
+        let currentUser = null;
+
+        function showCreateChoice() { document.getElementById('choice-modal').classList.remove('hidden'); }
+        function closeChoices() { document.getElementById('choice-modal').classList.add('hidden'); }
+
+        function showColonyList() {
+            const grid = document.getElementById('colony-grid');
+            grid.innerHTML = colonies.map(c => `
+                <div class="bg-gray-50 p-6 rounded-3xl border border-gray-100 hover:border-emerald-200 transition-all group">
+                    <div class="flex items-start justify-between mb-4"><div class="bg-white p-3 rounded-2xl shadow-sm"><i data-lucide="building" class="text-emerald-800 w-5 h-5"></i></div></div>
+                    <h4 class="font-bold text-gray-800 text-lg mb-1">${c.name}</h4>
+                    <p class="text-xs text-gray-400 font-medium">Verified Community</p>
+                    <button onclick="closeColonyList(); showAuth('signup', 'Resident')" class="mt-4 text-emerald-800 text-xs font-bold uppercase tracking-widest flex items-center gap-1 group-hover:gap-2 transition-all">Join <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+                </div>
+            `).join('');
+            document.getElementById('colony-list-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeColonyList() { document.getElementById('colony-list-modal').classList.add('hidden'); }
+
+        function switchView(viewId) {
+            document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add('hidden'));
+            if (viewId === 'dashboard') {
+                if (currentUser.role === 'Resident' && !currentUser.approved) {
+                    document.getElementById('pending-view').classList.remove('hidden');
+                    document.getElementById('pending-colony-name').innerText = currentUser.colony;
+                    return;
+                }
+                document.getElementById('dashboard-view').classList.remove('hidden');
+                document.getElementById('dash-colony-title').innerText = currentUser.colony;
+                updateDashboardUI();
+            } else document.getElementById(viewId + '-view').classList.remove('hidden');
+        }
+
+        function updateDashboardUI() {
+            document.querySelectorAll('.president-only').forEach(el => {
+                if (currentUser.role === 'President') el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+            if (currentUser.role === 'President') {
+                document.getElementById('approval-list-container').classList.remove('hidden');
+                renderApprovalList();
+            } else document.getElementById('approval-list-container').classList.add('hidden');
+            document.getElementById('user-role-badge').innerText = currentUser.role;
+            document.getElementById('user-avatar').innerText = currentUser.role === 'President' ? 'PR' : 'US';
+        }
+
+        function renderApprovalList() {
+            const list = document.getElementById('pending-list');
+            const myColony = colonies.find(c => c.name === currentUser.colony);
+            if (!myColony) return;
+            list.innerHTML = myColony.requests.map((r, i) => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-2">
+                    <div><p class="font-bold text-gray-800 text-sm">${r.name}</p><p class="text-[10px] text-gray-400 font-bold">${r.phone}</p></div>
+                    <button onclick="approveMember(${i})" class="bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold">APPROVE</button>
+                </div>
+            `).join('') || '<p class="text-center text-gray-400 text-xs py-4">No pending requests.</p>';
+        }
+
+        function approveMember(index) {
+            const myColony = colonies.find(c => c.name === currentUser.colony);
+            myColony.requests.splice(index, 1);
+            localStorage.setItem('un_colonies', JSON.stringify(colonies));
+            renderApprovalList();
+            alert("Member Approved!");
+        }
+
+        function handleAuthAction() {
+            const name = document.getElementById('auth-name').value;
+            const phone = document.getElementById('auth-phone').value;
+            const role = document.getElementById('auth-role').value;
+            const colony = (document.getElementById('colony-select').classList.contains('hidden'))
+                ? document.getElementById('colony-input').value
+                : document.getElementById('colony-select').value;
+
+            if (!name || (!colony && window.authType !== 'signin')) { alert("Missing information!"); return; }
+
+            currentUser = { role: role, approved: (role === 'President'), colony: colony };
+
+            if (window.authType === 'signup') {
+                if (role === 'President' && window.authSubtype === 'New') {
+                    const cName = name + "'s " + colony;
+                    colonies.push({ name: cName, requests: [] });
+                    currentUser.colony = cName;
+                    localStorage.setItem('un_colonies', JSON.stringify(colonies));
+                } else if (role === 'Resident') {
+                    const target = colonies.find(c => c.name === colony);
+                    if (target) {
+                        target.requests.push({ name: name, phone: phone });
+                        localStorage.setItem('un_colonies', JSON.stringify(colonies));
+                    }
+                }
+            }
+
+            switchView('dashboard');
+        }
+
+        function showAuth(type, role = 'Resident', subtype = '') {
+            closeChoices();
+            window.authType = type;
+            window.authSubtype = subtype;
+            const modal = document.getElementById('auth-modal');
+            const rCont = document.getElementById('role-container');
+            const cInput = document.getElementById('colony-input');
+            const cSelect = document.getElementById('colony-select');
+            const pCont = document.getElementById('password-container');
+            const phCont = document.getElementById('phone-container');
+
+            rCont.classList.add('hidden'); cInput.classList.add('hidden');
+            cSelect.classList.add('hidden'); pCont.classList.add('hidden');
+            phCont.classList.add('hidden');
+
+            if (type === 'signin') {
+                document.getElementById('auth-title').innerText = "Sign In";
+                rCont.classList.remove('hidden');
+                cInput.classList.remove('hidden'); // Ask for colony to know where to go
+                pCont.classList.remove('hidden');
+            } else if (role === 'Resident') {
+                document.getElementById('auth-title').innerText = "Join Colony";
+                cSelect.classList.remove('hidden'); phCont.classList.remove('hidden');
+                cSelect.innerHTML = '<option value="">Choose Colony</option>' + colonies.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                document.getElementById('auth-role').value = 'Resident';
+            } else {
+                pCont.classList.remove('hidden');
+                document.getElementById('auth-title').innerText = (subtype === 'New') ? "New Community" : "Claim Colony";
+                document.getElementById('auth-role').value = 'President';
+                if (subtype === 'New') cInput.classList.remove('hidden');
+                else {
+                    cSelect.classList.remove('hidden');
+                    cSelect.innerHTML = '<option value="">Select Colony</option>' + colonies.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                }
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function addComplaint() { const t = prompt("Issue:"); if (t) { const l = document.getElementById('complaints-list'); const d = document.createElement('div'); d.className = "bg-emerald-50 p-4 rounded-2xl mb-2 animate-fade"; d.innerHTML = `<p class='font-semibold text-sm'>${t}</p>`; if (l.querySelector('p.text-center')) l.innerHTML = ''; l.prepend(d); } }
+        function addPost() { const t = prompt("Content:"); if (t) { const l = document.getElementById('posts-list'); const d = document.createElement('div'); d.className = "bg-white p-6 rounded-[2.5rem] shadow-sm mb-4 animate-fade"; d.innerHTML = `<p class='font-semibold text-gray-800'>${t}</p><p class='text-[10px] text-gray-400 mt-2 font-bold'>Just Now</p>`; if (l.querySelector('.text-center')) l.innerHTML = ''; l.prepend(d); } }
+
+        let jitsiApi = null;
+        function startMeeting(roomName) {
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: roomName,
+                width: '100%',
+                height: '100%',
+                parentNode: document.querySelector('#jitsi-container'),
+                userInfo: {
+                    displayName: currentUser.name || 'UrbanNest User'
+                },
+                interfaceConfigOverwrite: {
+                    TOOLBAR_BUTTONS: [
+                        'microphone', 'camera', 'closedcaptions', 'desktop', 'embedmeeting', 'fullscreen',
+                        'fodeviceselection', 'hangup', 'profile', 'chat', 'recording',
+                        'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
+                        'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts',
+                        'tileview', 'videobackgroundblur', 'download', 'help', 'mute-everyone',
+                        'security'
+                    ],
+                }
+            };
+            document.getElementById('meeting-overlay').classList.remove('hidden');
+            document.getElementById('meeting-room-title').innerText = roomName.replace(/_/g, ' ');
+            jitsiApi = new JitsiMeetExternalAPI(domain, options);
+        }
+
+        function leaveMeeting() {
+            if (jitsiApi) {
+                jitsiApi.dispose();
+                jitsiApi = null;
+            }
+            document.getElementById('meeting-overlay').classList.add('hidden');
+            document.getElementById('jitsi-container').innerHTML = '';
+        }
+
+        function createMeeting() {
+            const n = prompt("Meeting Topic:");
+            if (n) {
+                const roomName = "UrbanNest_" + n.replace(/\s+/g, '_');
+                const l = document.getElementById('meetings-list');
+                const d = document.createElement('div');
+                d.className = "bg-white p-6 rounded-[2.5rem] shadow-sm flex items-center justify-between mb-4 animate-fade";
+                d.innerHTML = `<div><h4 class='font-bold text-gray-800'>${n}</h4><p class='text-xs text-emerald-600 font-bold'>LIVE</p></div><button onclick="startMeeting('${roomName}')" class='bg-coral text-white px-8 py-3 rounded-2xl font-bold'>Join</button>`;
+                if (l.querySelector('.text-center')) l.innerHTML = '';
+                l.prepend(d);
+                // Automatically start for the creator
+                startMeeting(roomName);
+            }
+        }
+        function broadcastEmergency() { const m = prompt("Message:"); if (m) { document.getElementById('emergency-msg').innerText = m; document.getElementById('emergency-msg').className = "text-sm font-bold text-red-600 animate-pulse"; } }
+        function closeAuth() { document.getElementById('auth-modal').classList.add('hidden'); }
+        function switchTab(t) {
+            ['home', 'posts', 'emergency', 'meetings', 'help'].forEach(id => {
+                document.getElementById('tab-' + id).classList.add('hidden');
+                document.getElementById('btn-' + id).classList.replace('text-emerald-800', 'text-gray-400');
+                document.getElementById('btn-' + id).classList.remove('tab-active');
+            });
+            document.getElementById('tab-' + t).classList.remove('hidden');
+            document.getElementById('btn-' + t).classList.replace('text-gray-400', 'text-emerald-800');
+            document.getElementById('btn-' + t).classList.add('tab-active');
+            lucide.createIcons();
+        }
+    </script>
+</body>
+
+</html>
